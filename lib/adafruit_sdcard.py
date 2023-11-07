@@ -195,11 +195,7 @@ class SDCard:
         else:
             raise ValueError()
 
-        if crc == 0:
-            buf[5] = calculate_crc(buf[:-1])
-        else:
-            buf[5] = crc
-
+        buf[5] = calculate_crc(buf[:-1]) if crc == 0 else crc
         if wait:
             self._wait_for_ready(card)
 
@@ -255,11 +251,7 @@ class SDCard:
         buf[3] = (block << 1) & 0xFF
         buf[4] = 0
 
-        if crc == 0:
-            buf[5] = calculate_crc(buf[:-1])
-        else:
-            buf[5] = crc
-
+        buf[5] = calculate_crc(buf[:-1]) if crc == 0 else crc
         result = -1
         self._wait_for_ready(card)
 
@@ -457,10 +449,7 @@ def _calculate_crc_table() -> bytearray:
 
     # generate a table value for all 256 possible byte values
     for i in range(256):
-        if i & 0x80:
-            crc_table[i] = i ^ crc_poly
-        else:
-            crc_table[i] = i
+        crc_table[i] = i ^ crc_poly if i & 0x80 else i
         for _ in range(1, 8):
             crc_table[i] = crc_table[i] << 1
             if crc_table[i] & 0x80:
